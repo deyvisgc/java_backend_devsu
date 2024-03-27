@@ -1,6 +1,7 @@
 package com.example.prueba_tecnica.controller;
 
 import com.example.prueba_tecnica.dto.CuentaDto;
+import com.example.prueba_tecnica.dto.MovimientoDto;
 import com.example.prueba_tecnica.exception.AccountException;
 import com.example.prueba_tecnica.service.CuentaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +28,7 @@ public class CuentaController {
     public ResponseEntity<List<CuentaDto>> getAll(){
         return ResponseEntity.ok(cuentaService.listAll());
     }
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<CuentaDto> getById(@PathVariable("id") Long id) {
         CuentaDto result =  cuentaService.getById(id);

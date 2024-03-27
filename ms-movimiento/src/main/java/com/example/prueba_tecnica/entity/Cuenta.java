@@ -23,7 +23,7 @@ public class Cuenta {
     @Column(name="account_id")
     private Long id;
     @Column(name="acc_number")
-    private String accountNnumber;
+    private String accountNumber;
     @Column(name="acc_type")
     private String accountType;
     @Column(name="acc_initial_balance")

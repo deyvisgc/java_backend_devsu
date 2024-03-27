@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public interface CuentaMapper {
     @Mappings({
             @Mapping(source = "id", target = "cuenta_id"),
-            @Mapping(source = "accountNnumber", target = "numeroCuenta"),
+            @Mapping(source = "accountNumber", target = "numeroCuenta"),
             @Mapping(source = "accountType", target = "tipoCuenta"),
             @Mapping(source = "initialBalance", target = "saldoInicial"),
             @Mapping(source = "status", target = "estado"),

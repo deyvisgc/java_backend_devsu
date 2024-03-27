@@ -1,6 +1,8 @@
 package com.example.prueba_tecnica.service;
 
 import com.example.prueba_tecnica.cliente.ClientDtoFeign;
+import com.example.prueba_tecnica.cliente.CustomerClient;
+import com.example.prueba_tecnica.dto.ReporteDto;
 import com.example.prueba_tecnica.entity.Cuenta;
 import com.example.prueba_tecnica.exception.AccountException;
 import com.example.prueba_tecnica.dto.AuditoriaDto;
@@ -18,6 +20,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +34,7 @@ public class MovimientoServiceImp implements MovimientoService {
     private final MovimientoMapper movimientoMapper;
     private final CuentaService cuentaService;
     private final AuditoriaService auditoriaService;
+    private final CustomerClient customerClient;
     @Override
     public List<MovimientoDto> listAll() {
 
@@ -177,6 +181,41 @@ public class MovimientoServiceImp implements MovimientoService {
             System.out.println("Cliente eliminado correctamente");
         } catch (EmptyResultDataAccessException e) {
             System.out.println("No se encontró ningún cliente con el ID proporcionado");
+        }
+    }
+
+    @Override
+    public List<ReporteDto> generarReporte(Date fechaIni, Date fechaFin, Long cliente) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            List<Movimiento> lmovimientos = movimientoRepository.obtenerReportesPorFechaYCliente(fechaIni, fechaFin, cliente);
+             lmovimientos.stream()
+                    .map( mov -> {
+                        ClientDtoFeign clientDtoFeign = customerClient.findByIdClient(mov.getAccount().getClienteId()).getBody();
+                        mov.getAccount().setNameCustomer(clientDtoFeign.getNombre());
+                        return mov;
+                    }).map(movimientoMapper::movimientoToMovimientoDto)
+                    .collect(Collectors.toList());
+            List<ReporteDto> reporte = lmovimientos.stream()
+                    .map(movimiento -> {
+                        ReporteDto reporteDto = new ReporteDto();
+                        reporteDto.setFecha(dateFormat.format(movimiento.getDate()));
+                        reporteDto.setCliente(movimiento.getAccount().getNameCustomer());
+                        reporteDto.setNumeroCuenta(movimiento.getAccount().getAccountNumber());
+                        reporteDto.setTipo(movimiento.getAccount().getAccountType());
+                        reporteDto.setSaldoInicial(movimiento.getAccount().getInitialBalance());
+                        reporteDto.setEstado(movimiento.getAccount().isStatus());
+                        reporteDto.setMovimiento(movimiento.getValue());
+                        reporteDto.setSaldoDisponible(movimiento.getBalance());
+                        reporteDto.setTipoMovimiento(movimiento.getTypeMovement());
+                        return reporteDto;
+                    }).collect(Collectors.toList());
+            return reporte;
+        } catch (RecursoNoEncontradoException ex) {
+            throw new RecursoNoEncontradoException("No se encontro informaciòn de movimientos");
+        } catch (Exception ex) {
+            log.error("ERROR: {}", ex.getMessage());
+            throw ex;
         }
     }
 }
