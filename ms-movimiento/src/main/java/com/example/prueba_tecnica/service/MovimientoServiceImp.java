@@ -1,10 +1,9 @@
 package com.example.prueba_tecnica.service;
 
-import com.example.prueba_tecnica.Execption.CustomException;
+import com.example.prueba_tecnica.Execption.AccountException;
 import com.example.prueba_tecnica.dto.AuditoriaDto;
 import com.example.prueba_tecnica.dto.CuentaDto;
 import com.example.prueba_tecnica.dto.MovimientoDto;
-import com.example.prueba_tecnica.entity.Cuenta;
 import com.example.prueba_tecnica.entity.Movimiento;
 import com.example.prueba_tecnica.mapper.MovimientoMapper;
 import com.example.prueba_tecnica.repository.MovimientoRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,7 +48,7 @@ public class MovimientoServiceImp implements MovimientoService {
                 newSaldo = cuenta.getSaldoActual().add(movimientoDto.getValor());
             } else {
                 if (cuenta.getSaldoActual().compareTo(BigDecimal.ZERO) == 0) {
-                    throw new CustomException("Saldo no disponible");
+                    throw new AccountException("Saldo no disponible");
                 }
                 newSaldo = cuenta.getSaldoActual().subtract(movimientoDto.getValor().abs()); //devuelvo el valor absoluto
             }

@@ -1,9 +1,9 @@
 package com.example.prueba_tecnica.Execption;
 
-public class CustomException extends RuntimeException {
+public class AccountException extends RuntimeException {
     private String errorMessage;
 
-    public CustomException(String errorMessage) {
+    public AccountException(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 

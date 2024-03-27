@@ -1,6 +1,7 @@
 
 package com.example.prueba_tecnica.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class Cuenta {
     private boolean status;
     @Column(name="client_id")
     private Long clienteId;
+    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Movimiento> movement;
     @Transient

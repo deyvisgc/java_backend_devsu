@@ -1,8 +1,6 @@
 package com.example.prueba_tecnica.controller;
 
-import com.example.prueba_tecnica.Execption.CustomException;
 import com.example.prueba_tecnica.dto.MovimientoDto;
-import com.example.prueba_tecnica.service.CuentaService;
 import com.example.prueba_tecnica.service.MovimientoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,13 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,11 +27,11 @@ public class MovimientoController {
     }
     @GetMapping(value = "/{id}")
     public ResponseEntity<MovimientoDto> getClienById(@PathVariable("id") Long id) {
-        MovimientoDto client =  movimientoService.getById(id);
-        if (null==client){
+        MovimientoDto movimientoDto =  movimientoService.getById(id);
+        if (null==movimientoDto){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(client);
+        return ResponseEntity.ok(movimientoDto);
     }
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody MovimientoDto movimientoDto, BindingResult result){

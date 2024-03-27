@@ -1,22 +1,18 @@
 package com.example.prueba_tecnica.dto;
-
-import com.example.prueba_tecnica.entity.Cuenta;
 import com.example.prueba_tecnica.entity.Movimiento;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +29,24 @@ public class CuentaDto {
     @Min(value = 0, message = "El cliente id debe ser mayor a 0")
     private Integer clienteId;
     private String nombreCliente;
+
     @Builder.Default
     private boolean estado= true;
     private List<Movimiento> movimiento;
+    // Constructor que acepta una lista de movimientos
+    /*
+    public CuentaDto(Long cuenta_id, String numeroCuenta, String tipoCuenta, BigDecimal saldoInicial, BigDecimal saldoActual, Integer clienteId, String nombreCliente, boolean estado, List<Movimiento> movimiento) {
+        this.cuenta_id = cuenta_id;
+        this.numeroCuenta = numeroCuenta;
+        this.tipoCuenta = tipoCuenta;
+        this.saldoInicial = saldoInicial;
+        this.saldoActual = saldoActual;
+        this.clienteId = clienteId;
+        this.nombreCliente = nombreCliente;
+        this.estado = estado;
+        this.movimiento = movimiento;
+    }
+
+     */
+
 }

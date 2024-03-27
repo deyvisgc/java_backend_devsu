@@ -1,16 +1,15 @@
 
 package com.example.prueba_tecnica.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,6 +28,7 @@ public class Movimiento {
     private BigDecimal value;
     @Column(name="mov_balance")
     private BigDecimal balance;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Cuenta account;
