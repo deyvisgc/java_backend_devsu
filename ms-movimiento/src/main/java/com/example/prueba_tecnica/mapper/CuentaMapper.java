@@ -19,6 +19,7 @@ public interface CuentaMapper {
             @Mapping(source = "clienteId", target = "clienteId"),
             @Mapping(source = "movement", target = "movimiento"),
             @Mapping(source = "nameCustomer", target = "nombreCliente"),
+            @Mapping(source = "balanceActual", target = "saldoActual")
     })
     CuentaDto cuentaTocuentaDto(Cuenta cuenta);
     @InheritInverseConfiguration

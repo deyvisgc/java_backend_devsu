@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,32 +48,28 @@ public class CuentaServiceImp implements CuentaService {
     }
 
     @Override
-    public CuentaDto save(CuentaDto clientDto) {
-
-        // Mapear el DTO a la entidad Cliente
-        Cuenta cliente = cuentaMapper.cuentaDtoTocuenta(clientDto);
-        // Guardar el cliente en la base de datos
-        Cuenta clientResultd = cuentaRepository.save(cliente);
+    public CuentaDto save(CuentaDto cuentaDto) {
+        Cuenta cuenta = cuentaMapper.cuentaDtoTocuenta(cuentaDto);
+        cuenta.setBalanceActual(cuentaDto.getSaldoInicial());
+        Cuenta clientResultd = cuentaRepository.save(cuenta);
         return cuentaMapper.cuentaTocuentaDto(clientResultd);
     }
 
     @Override
     public CuentaDto update(Long id, CuentaDto clientDto) {
-
         // Verificar si el cliente con el ID dado existe en la base de datos
         Optional<Cuenta> clienteExistenteOptional = cuentaRepository.findById(id);
-        CuentaDto clientDtoResul = new CuentaDto();
+        CuentaDto result = new CuentaDto();
         if (clienteExistenteOptional.isPresent()) {
-
             Cuenta client = cuentaMapper.cuentaDtoTocuenta(clientDto);
             client.setId(id);
             // Guardar el cliente actualizado en la base de datos
-            clientDtoResul = cuentaMapper.cuentaTocuentaDto(cuentaRepository.save(client));
+            result = cuentaMapper.cuentaTocuentaDto(cuentaRepository.save(client));
         } else {
             // Manejar el caso en que el cliente no exista en la base de datos
             System.err.println("Erro no existe informacion");
         }
-        return clientDtoResul;
+        return result;
 
     }
     @Override
@@ -82,6 +79,15 @@ public class CuentaServiceImp implements CuentaService {
             System.out.println("Cliente eliminado correctamente");
         } catch (EmptyResultDataAccessException e) {
             System.out.println("No se encontró ningún cliente con el ID proporcionado");
+        }
+    }
+
+    @Override
+    public void updateSaldoActual(Long cuentaId, BigDecimal nuevoSaldoActual) {
+        try {
+            cuentaRepository.updateSaldoActual(cuentaId, nuevoSaldoActual);
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("No se encontró ningúna cuenta con el ID proporcionado");
         }
     }
 }

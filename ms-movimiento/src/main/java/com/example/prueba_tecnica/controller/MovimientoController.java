@@ -1,5 +1,6 @@
 package com.example.prueba_tecnica.controller;
 
+import com.example.prueba_tecnica.Execption.CustomException;
 import com.example.prueba_tecnica.dto.MovimientoDto;
 import com.example.prueba_tecnica.service.CuentaService;
 import com.example.prueba_tecnica.service.MovimientoService;
@@ -16,6 +17,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,11 +38,11 @@ public class MovimientoController {
         return ResponseEntity.ok(client);
     }
     @PostMapping
-    public ResponseEntity<MovimientoDto> create(@Valid @RequestBody MovimientoDto clientDto, BindingResult result){
+    public ResponseEntity<?> create(@Valid @RequestBody MovimientoDto movimientoDto, BindingResult result){
         if (result.hasErrors()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, this.formatMessage(result));
+             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(this.formatMessage(result));
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(movimientoService.save(clientDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(movimientoService.save(movimientoDto));
     }
 
    @PutMapping(value = "/{id}")

@@ -12,6 +12,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -20,7 +21,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CuentaDto {
-
     private Long cuenta_id;
     @Size(min=1, max=30, message="El numero de cuenta debe tener 1 hasta 30 digitos")
     @NotBlank(message = "Numero de cuenta es requerido")
@@ -28,7 +28,8 @@ public class CuentaDto {
     @NotBlank(message = "Tipo de cuenta es requerido")
     private String tipoCuenta;
     //@Min(value = 0, message = "El saldo inicial debe ser mayor a 0")
-    private Double saldoInicial;
+    private BigDecimal saldoInicial;
+    private BigDecimal saldoActual;
     @Min(value = 0, message = "El cliente id debe ser mayor a 0")
     private Integer clienteId;
     private String nombreCliente;

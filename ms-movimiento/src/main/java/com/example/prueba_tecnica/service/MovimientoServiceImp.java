@@ -1,14 +1,22 @@
 package com.example.prueba_tecnica.service;
 
+import com.example.prueba_tecnica.Execption.CustomException;
+import com.example.prueba_tecnica.dto.AuditoriaDto;
+import com.example.prueba_tecnica.dto.CuentaDto;
 import com.example.prueba_tecnica.dto.MovimientoDto;
+import com.example.prueba_tecnica.entity.Cuenta;
 import com.example.prueba_tecnica.entity.Movimiento;
 import com.example.prueba_tecnica.mapper.MovimientoMapper;
 import com.example.prueba_tecnica.repository.MovimientoRepository;
+import com.example.prueba_tecnica.util.TipoMovimiento;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -17,6 +25,8 @@ import java.util.stream.Collectors;
 public class MovimientoServiceImp implements MovimientoService {
     private final MovimientoRepository movimientoRepository;
     private final MovimientoMapper movimientoMapper;
+    private final CuentaService cuentaService;
+    private final AuditoriaService auditoriaService;
     @Override
     public List<MovimientoDto> listAll() {
         List<Movimiento> clientes = movimientoRepository.findAll();
@@ -31,13 +41,42 @@ public class MovimientoServiceImp implements MovimientoService {
     }
 
     @Override
-    public MovimientoDto save(MovimientoDto clientDto) {
+    public MovimientoDto save(MovimientoDto movimientoDto) {
 
-        // Mapear el DTO a la entidad Cliente
-        Movimiento movimiento = movimientoMapper.movimientoDtOtoMovimiento(clientDto);
-        // Guardar el cliente en la base de datos
-        Movimiento result = movimientoRepository.save(movimiento);
-        return movimientoMapper.movimientoToMovimientoDto(result);
+        try {
+            BigDecimal newSaldo = BigDecimal.ZERO;
+            CuentaDto cuenta = cuentaService.getById(movimientoDto.getCuenta().getId());
+            if (movimientoDto.getTipoMovimiento().equalsIgnoreCase(TipoMovimiento.DEPOSITO.getDescripcion())) {
+                newSaldo = cuenta.getSaldoActual().add(movimientoDto.getValor());
+            } else {
+                if (cuenta.getSaldoActual().compareTo(BigDecimal.ZERO) == 0) {
+                    throw new CustomException("Saldo no disponible");
+                }
+                newSaldo = cuenta.getSaldoActual().subtract(movimientoDto.getValor().abs()); //devuelvo el valor absoluto
+            }
+            System.err.println("New Saldo: " + newSaldo);
+            movimientoDto.setSaldo(newSaldo);
+            // Mapear el DTO a la entidad Cliente
+            Movimiento movimiento = movimientoMapper.movimientoDtOtoMovimiento(movimientoDto);
+            // Guardar el cliente en la base de datos
+            Movimiento result = movimientoRepository.save(movimiento);
+            //Actualizado el saldoActual de la entidad cuenta
+            cuentaService.updateSaldoActual(movimientoDto.getCuenta().getId(), newSaldo);
+            // Insertar Transacciones
+            AuditoriaDto auditoriaDto = AuditoriaDto.builder()
+                    .tipoTransaccion(movimiento.getTypeMovement())
+                    .fecha(new Date())
+                    .usuario(cuenta.getNombreCliente())
+                    .descripcion("Se realizo una transacction de " + movimientoDto.getTipoMovimiento())
+                    .monto(movimientoDto.getValor())
+                    .cuentaId(movimientoDto.getCuenta().getId())
+                    .build();
+            auditoriaService.save(auditoriaDto);
+            return movimientoMapper.movimientoToMovimientoDto(result);
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("Error " +  e.getMessage());
+        }
+        return null;
     }
 
     @Override

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -25,9 +26,9 @@ public class Movimiento {
     @Column(name="mov_typeMovement")
     private String typeMovement;
     @Column(name="mov_value")
-    private double value;
+    private BigDecimal value;
     @Column(name="mov_balance")
-    private double balance;
+    private BigDecimal balance;
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Cuenta account;

@@ -6,12 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -21,18 +20,12 @@ import java.util.List;
 @AllArgsConstructor
 public class MovimientoDto {
     private Long movimiento_id;
-
-    @NotBlank(message = "Fecha Movimiento es Requerido")
-    private String fechaMovimiento;
-
+    //@NotNull(message = "La fecha del movimiento no puede ser nula")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date fechaMovimiento;
     @NotBlank(message = "Tipo movimiento es requerido")
     private String tipoMovimiento;
-
-    @Min(value = 0, message = "El valor debe ser mayor a 0")
-    private Integer valor;
-
-    @Min(value = 0, message = "El saldo debe ser mayor a 0")
-    private Integer saldo;
-
+    private BigDecimal valor;
+    private BigDecimal saldo;
     private Cuenta cuenta;
 }
