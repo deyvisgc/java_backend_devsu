@@ -1,6 +1,6 @@
 package com.example.prueba_tecnica.controller;
 
-import com.example.prueba_tecnica.Execption.CustomException;
+import com.example.prueba_tecnica.exception.CustomException;
 import com.example.prueba_tecnica.dto.ClientDto;
 import com.example.prueba_tecnica.service.ClientService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.HashMap;

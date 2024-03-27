@@ -1,23 +1,23 @@
 package com.example.prueba_tecnica.controller;
 
 import com.example.prueba_tecnica.dto.CuentaDto;
+import com.example.prueba_tecnica.exception.AccountException;
 import com.example.prueba_tecnica.service.CuentaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hibernate.jpamodelgen.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
+@Slf4j
 @RestController
 @RequestMapping ("/cuentas")
 public class CuentaController {
@@ -30,26 +30,22 @@ public class CuentaController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<CuentaDto> getById(@PathVariable("id") Long id) {
         CuentaDto result =  cuentaService.getById(id);
-        if (Objects.isNull(result)){
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(result);
     }
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CuentaDto cuentaDto, BindingResult result){
         if (result.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(this.formatMessage(result));
-            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, this.formatMessage(result));
+            throw new AccountException(this.formatMessage(result));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(cuentaService.save(cuentaDto));
     }
-       @PutMapping(value = "/{id}")
-    public ResponseEntity<CuentaDto> update(@PathVariable("id") Long id, @RequestBody CuentaDto cuentaDto){
-       CuentaDto client =  cuentaService.update(id, cuentaDto);
-        if (client == null){
-            return ResponseEntity.notFound().build();
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<CuentaDto> update(@PathVariable("id") Long id, @Valid @RequestBody CuentaDto cuentaDto, BindingResult result){
+        log.info("Result: {}", result);
+        if (result.hasErrors()) {
+            throw new AccountException(this.formatMessage(result));
         }
-        return ResponseEntity.ok(client);
+        return ResponseEntity.ok(cuentaService.update(id, cuentaDto));
     }
 
     @DeleteMapping(value = "/{id}")

@@ -1,4 +1,4 @@
-package com.example.prueba_tecnica.Execption;
+package com.example.prueba_tecnica.exception;
 
 public class CustomException extends RuntimeException {
     private String errorMessage;

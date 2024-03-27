@@ -1,17 +1,16 @@
-package com.example.prueba_tecnica.Execption;
+package com.example.prueba_tecnica.exception;
 
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(AccountException.class)
+    @ExceptionHandler(CustomException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ErrorResponse handleCustomException(AccountException ex) {
-        System.err.println("Error: " + ex.getMessage());
+    public ErrorResponse handleCustomException(CustomException ex) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getErrorMessage());
     }
 /*

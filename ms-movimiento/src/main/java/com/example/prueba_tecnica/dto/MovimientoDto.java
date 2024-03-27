@@ -20,11 +20,13 @@ import java.util.List;
 @AllArgsConstructor
 public class MovimientoDto {
     private Long movimiento_id;
-    //@NotNull(message = "La fecha del movimiento no puede ser nula")
+    @NotNull(message = "La fecha del movimiento es requerida")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date fechaMovimiento;
     @NotBlank(message = "Tipo movimiento es requerido")
     private String tipoMovimiento;
+    @NotNull(message = "El monto del valor es requerido.")
+    @Digits(integer = Integer.MAX_VALUE, fraction = Integer.MAX_VALUE, message = "El valor debe ser numérico.")
     private BigDecimal valor;
     private BigDecimal saldo;
     private Cuenta cuenta;

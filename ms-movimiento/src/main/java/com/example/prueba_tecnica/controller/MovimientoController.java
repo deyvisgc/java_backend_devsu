@@ -1,6 +1,7 @@
 package com.example.prueba_tecnica.controller;
 
 import com.example.prueba_tecnica.dto.MovimientoDto;
+import com.example.prueba_tecnica.exception.AccountException;
 import com.example.prueba_tecnica.service.MovimientoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +37,7 @@ public class MovimientoController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody MovimientoDto movimientoDto, BindingResult result){
         if (result.hasErrors()) {
-             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(this.formatMessage(result));
+            throw new AccountException(this.formatMessage(result));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(movimientoService.save(movimientoDto));
     }

@@ -1,6 +1,6 @@
 package com.example.prueba_tecnica.service;
 
-import com.example.prueba_tecnica.Execption.CustomException;
+import com.example.prueba_tecnica.exception.CustomException;
 import com.example.prueba_tecnica.client.CuentaClient;
 import com.example.prueba_tecnica.client.CuentaDtoFeign;
 import com.example.prueba_tecnica.dto.ClientDto;
@@ -39,7 +39,7 @@ public class ClientServiceImp implements ClientService {
         if (cuenta.isPresent()) {
             return clienteMapper.clienteToClienteDTO(cuenta.get());
         } else {
-            throw new CustomException("No existe informaciòn para el id " + id);
+            throw new CustomException("No existe cliente relacionado con el identificador: " + id);
         }
     }
 
@@ -83,7 +83,7 @@ public class ClientServiceImp implements ClientService {
             clientDtoResul = clienteMapper.clienteToClienteDTO(clientRepository.save(client));
         } else {
             // Manejar el caso en que el cliente no exista en la base de datos
-            throw new CustomException("No existe informaciòn para el id " + id);
+            throw new CustomException("No existe cliente relacionado con el identificador: " + id);
         }
         return clientDtoResul;
     }
