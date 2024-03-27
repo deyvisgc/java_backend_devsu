@@ -50,14 +50,6 @@ public class MovimientoController {
             // Manejar el caso en el que no se reciben dos fechas correctamente
             throw new IllegalArgumentException("El formato del rango de fechas no es válido");
         }
-       /*
-        MovimientoDto movimientoDto =  movimientoService.getById(id);
-        if (null==movimientoDto){
-            return ResponseEntity.notFound().build();
-        }
-
-        */
-        //return ResponseEntity.ok(null);
     }
     @GetMapping(value = "/{id}")
     public ResponseEntity<MovimientoDto> getClienById(@PathVariable("id") Long id) {

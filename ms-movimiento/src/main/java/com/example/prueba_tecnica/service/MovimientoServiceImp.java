@@ -210,9 +210,10 @@ public class MovimientoServiceImp implements MovimientoService {
                         reporteDto.setTipoMovimiento(movimiento.getTypeMovement());
                         return reporteDto;
                     }).collect(Collectors.toList());
+            if (reporte.size() == 0) {
+                throw new RecursoNoEncontradoException("No se encontro informaciòn de movimientos");
+            }
             return reporte;
-        } catch (RecursoNoEncontradoException ex) {
-            throw new RecursoNoEncontradoException("No se encontro informaciòn de movimientos");
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
