@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 @Slf4j
 @RestController
-@RequestMapping ("/cuentas")
+@RequestMapping ("/api/cuentas")
 public class CuentaController {
     @Autowired
     private CuentaService cuentaService ;
@@ -33,6 +33,10 @@ public class CuentaController {
     public ResponseEntity<CuentaDto> getById(@PathVariable("id") Long id) {
         CuentaDto result =  cuentaService.getById(id);
         return ResponseEntity.ok(result);
+    }
+    @GetMapping(value = "/clients/{id}")
+    public ResponseEntity<List<CuentaDto>> getByIdClient(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(cuentaService.getByIdClient(id));
     }
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CuentaDto cuentaDto, BindingResult result){
@@ -51,7 +55,7 @@ public class CuentaController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id){
+    public ResponseEntity<String> delete(@PathVariable("id") Long id){
         cuentaService.delete(id);
         return ResponseEntity.ok("Eliminado Correctamente");
     }

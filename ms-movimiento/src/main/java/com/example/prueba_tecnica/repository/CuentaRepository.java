@@ -15,5 +15,6 @@ public interface CuentaRepository extends JpaRepository<Cuenta, Long> {
     @Modifying
     @Query(value = "UPDATE account SET acc_balance_actual = ?2 WHERE account_id = ?1", nativeQuery = true)
     void updateSaldoActual(Long cuentaId, BigDecimal nuevoSaldoActual);
-
+    @Query(value = "SELECT * FROM account WHERE client_id = :clientId", nativeQuery = true)
+    List<Cuenta> findAccountsByClientId(@Param("clientId") Long clientId);
 }

@@ -11,6 +11,7 @@ import java.util.List;
 public interface CuentaService {
     public List<CuentaDto> listAll();
     public CuentaDto getById(Long  id);
+    public List<CuentaDto> getByIdClient(Long  id);
     public CuentaDto save(CuentaDto cuentaDto);
     public CuentaDto update(Long id, CuentaDto cuentaDto);
     public void delete(Long  id);

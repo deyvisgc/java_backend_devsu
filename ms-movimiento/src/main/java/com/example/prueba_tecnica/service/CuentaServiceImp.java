@@ -71,6 +71,24 @@ public class CuentaServiceImp implements CuentaService {
         }
 
     }
+    @Override
+    public List<CuentaDto> getByIdClient(Long id) {
+        try {
+            log.info("INICIO: LISTAR CUENTAS POR ID CLIENTE");
+            List<Cuenta> lscuentas = cuentaRepository.findAccountsByClientId(id);
+            if (lscuentas.size() == 0) {
+                throw new RecursoNoEncontradoException("No se encontro cuentas relacionas con el identificacod del cliente: "  + id);
+            }
+            List<CuentaDto> list = lscuentas.stream()
+                    .map(cuentaMapper::cuentaTocuentaDto)
+                    .collect(Collectors.toList());
+            log.info("FIN: LISTAR CUENTAS POR ID CLIENTE");
+            return list;
+        } catch (Exception ex) {
+            log.error("ERROR: {}", ex.getMessage());
+            throw ex;
+        }
+    }
 
     @Override
     public CuentaDto save(CuentaDto cuentaDto) {

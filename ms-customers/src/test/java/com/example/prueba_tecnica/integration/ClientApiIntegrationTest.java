@@ -1,4 +1,4 @@
-package com.example.prueba_tecnica;
+package com.example.prueba_tecnica.integration;
 import com.example.prueba_tecnica.dto.ClientDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

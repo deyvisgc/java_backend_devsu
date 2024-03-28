@@ -33,7 +33,7 @@ public class ClientDto {
     @Builder.Default
     private String tipo_negocio = "0";
     /*Cuenta*/
-    private int numeroCuenta;
+    private String numeroCuenta;
     private String tipoCuenta;
     private double saldoInicial;
     @Builder.Default

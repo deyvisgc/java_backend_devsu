@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CuentaDtoFeign {
-    private int numeroCuenta;
+    private String numeroCuenta;
     private String tipoCuenta;
     private double saldoInicial;
     private Long clienteId;

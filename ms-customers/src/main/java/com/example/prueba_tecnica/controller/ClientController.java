@@ -2,6 +2,7 @@ package com.example.prueba_tecnica.controller;
 
 import com.example.prueba_tecnica.exception.CustomException;
 import com.example.prueba_tecnica.dto.ClientDto;
+import com.example.prueba_tecnica.exception.RecursoNoEncontradoException;
 import com.example.prueba_tecnica.service.ClientService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,18 +30,26 @@ public class ClientController {
     }
     @GetMapping(value = "/{id}")
     public ResponseEntity<ClientDto> findById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(clientService.getById(id));
+    }
+    /*
+    @GetMapping(value = "/account/{id}")
+    public ResponseEntity<ClientDto> findClientAndAccountById(@PathVariable("id") Long id) {
         ClientDto client =  clientService.getById(id);
         if (null==client){
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(client);
     }
+
+     */
     @PostMapping
     public ResponseEntity<ClientDto> create(@Valid @RequestBody ClientDto clientDto, BindingResult result){
         if (result.hasErrors()) {
             throw new CustomException(this.formatMessage(result));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(clientService.save(clientDto));
+
     }
 
    @PutMapping(value = "/{id}")
