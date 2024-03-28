@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 @Slf4j
 @RestController
-@RequestMapping ("/clientes")
+@RequestMapping ("api/clientes")
 public class ClientController {
     @Autowired
     private ClientService clientService ;

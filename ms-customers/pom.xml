@@ -124,6 +124,20 @@
 			<version>3.12.4</version> <!-- Puedes cambiar la versión según tus necesidades -->
 			<scope>test</scope>
 		</dependency>
+		<!-- Para realizar pruebas de integraciòn -->
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>4.3.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>7.8.0</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
