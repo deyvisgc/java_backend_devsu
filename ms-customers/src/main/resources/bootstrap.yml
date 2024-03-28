@@ -16,7 +16,7 @@ spring:
       ddl-auto: update # Opciones: validate, update, create-drop, none
     properties:
       hibernate:
-        show_sql: true # Para mostrar las consultas SQL en la consola
+        #show_sql: true # Para mostrar las consultas SQL en la consola
         format_sql: true # Para formatear las consultas SQL en la consola
 ms-movimiento:
   url: http://localhost:8081
