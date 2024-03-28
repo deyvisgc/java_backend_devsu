@@ -31,19 +31,19 @@ class ClientTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        clienteExistente = crearClienteExistente();;
+        clienteExistente = crearClienteExistente();
     }
     private Client crearClienteExistente() {
         Client cliente = new Client();
-        cliente.setId(3L);
-        cliente.setName("Deyvis Garcia");
+        cliente.setId(1L);
+        cliente.setName("Deyvis Ronald Garcia");
         cliente.setGender("Masculino");
-        cliente.setAge(28);
+        cliente.setAge(30);
         cliente.setStatus(true);
-        cliente.setAddress("Puno, Peru");
+        cliente.setAddress("Lima, Peru");
         cliente.setIdentification("12345678");
-        cliente.setPhone("91091443");
-        cliente.setPassword("password123");
+        cliente.setPhone("91091442");
+        cliente.setPassword("12345");
         cliente.setStatus(true);
         return cliente;
     }
@@ -63,7 +63,7 @@ class ClientTest {
     }
     @Test
     public void testCrearCliente() {
-        when(clientRepositoryMock.findById(3L)).thenReturn(Optional.of(clienteExistente));
+         when(clientRepositoryMock.findById(1L)).thenReturn(Optional.of(clienteExistente));
         // Llamar al método del servicio para crear un cliente existente
         ClientDto clienteDtoEsperado = clienteMapperMock.clienteToClienteDTO(clienteExistente);
         System.out.println("Cliente DTO esperado: " + clienteDtoEsperado);
@@ -78,7 +78,7 @@ class ClientTest {
     public void testActualizarCliente() {
         Client clienteExistenteUpdate = updateClienteExistente();
         // Configurar el comportamiento del repositorio mock
-        when(clientRepositoryMock.findById(3L)).thenReturn(Optional.of(clienteExistenteUpdate));
+        when(clientRepositoryMock.findById(1L)).thenReturn(Optional.of(clienteExistenteUpdate));
         when(clientRepositoryMock.save(any())).thenReturn(clienteExistenteUpdate);
         // Llamar al método actualizarCliente con el ID del cliente existente y el DTO actualizado
         ClientDto clienteDtoRetornado = clientServiceImp.update(3L, clienteMapperMock.clienteToClienteDTO(clienteExistenteUpdate));
@@ -103,5 +103,25 @@ class ClientTest {
         // Verificar que la lista de clientes no esté vacía
         Assertions.assertFalse(clientesListados.isEmpty());
     }
-
+    @Test
+    public void testListarClientesById() {
+        // Simular el comportamiento del repositorio
+        clienteExistente = crearClienteExistente();
+        when(clientRepositoryMock.findById(3L)).thenReturn(Optional.of(clienteExistente));
+        // Llamar al método para listar clientes
+         Client clientesListados = clienteMapperMock.clienteDTOtoCliente(clientServiceImp.getById(3L));
+        // Verificar que se llame al método findAll del repositorio
+        //verify(clientRepositoryMock).findById(3L);
+        // Verificar que la lista de clientes no esté vacía
+        Assertions.assertEquals(clienteExistente, clientesListados);
+    }
+    @Test
+    public void testEliminarCliente() {
+        // Configurar el comportamiento del repositorio mock
+        doNothing().when(clientRepositoryMock).deleteById(15L);
+        // Llamar al método para eliminar un cliente
+        clientServiceImp.delete(15L);
+        // Verificar que se llame al método deleteById del repositorio con el ID correcto
+        //verify(clientRepositoryMock).deleteById(3L);
+    }
 }
