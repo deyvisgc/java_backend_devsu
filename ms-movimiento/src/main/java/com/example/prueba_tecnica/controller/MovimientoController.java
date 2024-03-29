@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +26,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 @Slf4j
 @RestController
-@RequestMapping ("/movimientos")
+@RequestMapping ("/api/movimientos")
 public class MovimientoController {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     @Autowired
     private MovimientoService movimientoService ;
     @GetMapping("/")
@@ -34,16 +37,14 @@ public class MovimientoController {
     }
     @GetMapping(value = "/reportes")
     public ResponseEntity<List<ReporteDto>> getReporte(@RequestParam("fecha") String rangoFecha, @RequestParam("cliente") Long cliente) throws ParseException {
+        log.info("INICIO: OBTENER REPORTES MOVIMIENTOS");
         // Divido el String en las dos fechas separadas
         String[] fechasSeparadas = rangoFecha.split("\" a \"");
         // Verifico si se han obtenido dos fechas
         if (fechasSeparadas.length == 2) {
             // Convertir las cadenas de fecha en objetos Date
-            Date fechaInicio = dateFormat.parse(fechasSeparadas[0].replace("\"", "").trim());
-            Date fechaFin = dateFormat.parse(fechasSeparadas[1].replace("\"", "").trim());
-            log.info("fechaInicio: {}", fechaInicio);
-            log.info("fechaFin: {}", fechaFin);
-            log.info("cliente: {}", cliente);
+            String fechaInicio = fechasSeparadas[0].replace("\"", "").trim();
+            String fechaFin    = fechasSeparadas[1].replace("\"", "").trim();
             List<ReporteDto> movimientoDto = movimientoService.generarReporte(fechaInicio, fechaFin, cliente);
             return ResponseEntity.ok(movimientoDto);
         } else {
@@ -61,6 +62,7 @@ public class MovimientoController {
     }
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody MovimientoDto movimientoDto, BindingResult result){
+        log.info("INICIO:  REGISTRAR UN MOVIMIENTO");
         if (result.hasErrors()) {
             throw new AccountException(this.formatMessage(result));
         }
@@ -68,12 +70,12 @@ public class MovimientoController {
     }
 
    @PutMapping(value = "/{id}")
-    public ResponseEntity<MovimientoDto> update(@PathVariable("id") Long id, @RequestBody MovimientoDto clientDto){
-        MovimientoDto client =  movimientoService.update(id, clientDto);
-        if (client == null){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(client);
+    public ResponseEntity<MovimientoDto> update(@PathVariable("id") Long id, @Valid @RequestBody MovimientoDto clientDto, BindingResult result){
+       log.info("INICIO:  ACUTUALIZAR UN MOVIMIENTO");
+       if (result.hasErrors()) {
+           throw new AccountException(this.formatMessage(result));
+       }
+        return ResponseEntity.ok(movimientoService.update(id, clientDto));
     }
 
     @DeleteMapping(value = "/{id}")

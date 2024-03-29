@@ -80,7 +80,12 @@ public class CuentaServiceImp implements CuentaService {
                 throw new RecursoNoEncontradoException("No se encontro cuentas relacionas con el identificacod del cliente: "  + id);
             }
             List<CuentaDto> list = lscuentas.stream()
-                    .map(cuentaMapper::cuentaTocuentaDto)
+                    .map( cuenta -> {
+                        ClientDtoFeign clientDtoFeign = customerClient.findByIdClient(cuenta.getClienteId()).getBody();
+                        cuenta.setNameCustomer(clientDtoFeign.getNombre());
+                        return cuenta;
+                    })
+                    .map(  cuentaMapper::cuentaTocuentaDto)
                     .collect(Collectors.toList());
             log.info("FIN: LISTAR CUENTAS POR ID CLIENTE");
             return list;
@@ -96,6 +101,10 @@ public class CuentaServiceImp implements CuentaService {
             Cuenta cuenta = cuentaMapper.cuentaDtoTocuenta(cuentaDto);
             cuenta.setBalanceActual(cuentaDto.getSaldoInicial());
             Cuenta clientResultd = cuentaRepository.save(cuenta);
+            ClientDtoFeign clientDtoFeign = customerClient.findByIdClient(clientResultd.getClienteId()).getBody();
+            if (Objects.nonNull(clientDtoFeign)) {
+                clientResultd.setNameCustomer(clientDtoFeign.getNombre());
+            }
             return cuentaMapper.cuentaTocuentaDto(clientResultd);
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
@@ -113,6 +122,10 @@ public class CuentaServiceImp implements CuentaService {
                 cuenta.setId(id);
                 cuenta.setBalanceActual(cuentaDto.getSaldoInicial());
                 result = cuentaMapper.cuentaTocuentaDto(cuentaRepository.save(cuenta));
+                ClientDtoFeign clientDtoFeign = customerClient.findByIdClient(result.getClienteId()).getBody();
+                if (Objects.nonNull(clientDtoFeign)) {
+                    result.setNombreCliente(clientDtoFeign.getNombre());
+                }
                 return result;
             } else {
                 throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al id: "  + id);

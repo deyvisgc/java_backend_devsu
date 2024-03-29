@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -81,10 +84,17 @@ public class MovimientoServiceImp implements MovimientoService {
                 // Comprobar si el saldo actual es menor que el valor del movimiento
                 if (cuenta.getSaldoActual().compareTo(BigDecimal.ZERO) == 0) {
                     throw new AccountException("Saldo no disponible");
-                } else if (cuenta.getSaldoActual().compareTo(movimientoDto.getValor()) < 0) {
-                    throw new AccountException("Saldo Actual: " + cuenta.getSaldoActual() + " Valor Movimiento: " + movimientoDto.getValor() + " no tienes saldo suficiente para el movimiento");
+                } else if (cuenta.getSaldoActual().compareTo(movimientoDto.getValor().abs()) < 0) {
+                    String mensaje = String.format("Saldo Actual: %s, %s: %s - No tienes saldo suficiente para el movimiento",
+                            cuenta.getSaldoActual(),
+                            movimientoDto.getTipoMovimiento(),
+                            movimientoDto.getValor().abs());
+                    throw new AccountException(mensaje);
+
                 }
                 newSaldo = cuenta.getSaldoActual().subtract(movimientoDto.getValor().abs()); //devuelvo el valor absoluto
+                // Valido si el valor es positivo o negativo
+                movimientoDto.setValor(movimientoDto.getValor().signum() == 1 ?  movimientoDto.getValor().negate() : movimientoDto.getValor());
             }
             log.info("NEW SALDO: {}", newSaldo);
             movimientoDto.setSaldo(newSaldo);
@@ -104,7 +114,7 @@ public class MovimientoServiceImp implements MovimientoService {
                     .cuentaId(movimientoDto.getCuenta().getId())
                     .build();
             auditoriaService.save(auditoriaDto);
-            log.info("FIN:  REGISTRAR UN MOVIMIENTO");
+            log.info("FIN: REGISTRAR UN MOVIMIENTO");
             return movimientoMapper.movimientoToMovimientoDto(result);
         }  catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
@@ -116,7 +126,6 @@ public class MovimientoServiceImp implements MovimientoService {
     public MovimientoDto update(Long id, MovimientoDto movimientoDto) {
 
         try {
-            log.info("INICIO:  ACTUALIZAR UN MOVIMIENTO");
             BigDecimal newSaldo = BigDecimal.ZERO;
             if (id == null){
                 throw new AccountException("El identificador del movimiento no puede ser nullo: " + id);
@@ -150,7 +159,6 @@ public class MovimientoServiceImp implements MovimientoService {
                 movimiento.setId(id);
                 Movimiento result = movimientoRepository.save(movimiento);
                 //Actualizado el saldoActual de la entidad cuenta
-                log.info("ID: {}", cuenta.getCuenta_id());
                 cuentaService.updateSaldoActual(cuenta.getCuenta_id(), newSaldo);
                 // Insertar Transacciones
                 AuditoriaDto auditoriaDto = AuditoriaDto.builder()
@@ -162,7 +170,7 @@ public class MovimientoServiceImp implements MovimientoService {
                         .cuentaId(movimientoDto.getCuenta().getId())
                         .build();
                 auditoriaService.save(auditoriaDto);
-                log.info("Fin:  ACTUALIZAR UN MOVIMIENTO");
+                log.info("FIN:  ACTUALIZAR UN MOVIMIENTO");
                 return movimientoMapper.movimientoToMovimientoDto(result);
             } else {
                 throw new RecursoNoEncontradoException("No existe cuenta relacionada con el identificador: " + id);
@@ -183,7 +191,7 @@ public class MovimientoServiceImp implements MovimientoService {
     }
 
     @Override
-    public List<ReporteDto> generarReporte(Date fechaIni, Date fechaFin, Long cliente) {
+    public List<ReporteDto> generarReporte(String fechaIni, String fechaFin, Long cliente) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             List<Movimiento> lmovimientos = movimientoRepository.obtenerReportesPorFechaYCliente(fechaIni, fechaFin, cliente);
@@ -211,6 +219,7 @@ public class MovimientoServiceImp implements MovimientoService {
             if (reporte.size() == 0) {
                 throw new RecursoNoEncontradoException("No se encontro informaciòn de movimientos");
             }
+            log.info("FIN: OBTENER REPORTES MOVIMIENTOS");
             return reporte;
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());

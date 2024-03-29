@@ -31,7 +31,7 @@ public class CuentaDto {
     private BigDecimal saldoActual;
     @Min(value = 1, message = "El identificador del cliente debe ser mayor a 0.")
     @NotNull(message = "Se requiere el identificador del cliente.")
-    private Integer clienteId;
+    private Long clienteId;
 
     private String nombreCliente;
 
