@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  cliente:
+    container_name: cliente
+    build:
+      context: ./ms-customers
+      dockerfile: dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - microservicios_net
+    environment:
+      - DATABASE_URL=jdbc:mysql://db_devsu:3306/basedatos?useSSL=false&serverTimezone=UTC
+      - DATABASE_USERNAME=devsu
+      - DATABASE_PASSWORD=marzo2024    
+    depends_on:
+      - db_devsu
+  movimiento:
+    container_name: movimiento
+    build:
+      context: ./ms-movimiento
+      dockerfile: dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - microservicios_net
+    environment:
+      - DATABASE_URL=jdbc:mysql://db_devsu:3306/basedatos?useSSL=false&serverTimezone=UTC
+      - DATABASE_USERNAME=devsu
+      - DATABASE_PASSWORD=marzo2024       
+    depends_on:
+      - db_devsu      
+  db_devsu:
+    image: "mysql:5.7"
+    container_name: db
+    restart: always
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+      - db:/var/lib/mysql
+    # env_file: .env  
+    environment:
+      MYSQL_USER: devsu
+      MYSQL_DATABASE: basedatos
+      MYSQL_PASSWORD: marzo2024
+      MYSQL_ROOT_PASSWORD: marzo2024
+    networks:
+      microservicios_net:
+        aliases:
+          - db_net    
+networks:
+  microservicios_net:
+    driver: bridge
+volumes:
+  db: {}    
