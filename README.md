@@ -21,7 +21,7 @@ El proyecto incluye operaciones CRUD (Crear, Leer, Actualizar y Eliminar) para l
 
 ## Base de Datos MySQL
 
-La aplicación utiliza una base de datos MySQL que se encuentra en un contenedor dentro del docker-compose. Las credenciales para la base de datos MySQL son las siguientes:
+La aplicación emplea una base de datos MySQL alojada en un contenedor dentro del docker-compose. El esquema de la base de datos se genera automáticamente al ejecutar docker-compose. A continuación, se detallan las credenciales para acceder a la base de datos MySQL:
 
 - **Host:** localhost
 - **Puerto:** 3306
