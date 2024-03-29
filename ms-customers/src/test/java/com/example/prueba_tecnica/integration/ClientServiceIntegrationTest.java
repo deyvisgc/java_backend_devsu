@@ -2,6 +2,7 @@ package com.example.prueba_tecnica.integration;
 
 import com.example.prueba_tecnica.client.CuentaDtoFeign;
 import com.example.prueba_tecnica.dto.ClientDto;
+import com.example.prueba_tecnica.dto.CuentaDto;
 import com.example.prueba_tecnica.service.ClientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +17,22 @@ public class ClientServiceIntegrationTest {
     private ClientService clientService;
 
     @Test
-    public void testCreateAccount_Successful() {
-        /*
-        * CuentaDto: igual a null creara cliente, caso contrario creara cliente y cuenta
-        * */
-        ClientDto clientDto = new ClientDto();
-        clientDto.setNombre("Salvatore Torres");
-        clientDto.setGenero("Masculino");
-        clientDto.setEdad(30);
-        clientDto.setDireccion("Lima, Peru");
-        clientDto.setIdentificacion("12345678");
-        clientDto.setTelefono("123456789");
-        clientDto.setPassword("12345");
+    public void testCreateClienteAndAccount_Successful() {
         // Datos de la cuenta
-        clientDto.getCuentaDto().setNumeroCuenta("12345678");
-        clientDto.getCuentaDto().setTipoCuenta("Corriente");
-        clientDto.getCuentaDto().setSaldoInicial(1000);
-        clientDto.setEstado(true);
-        // Simular llamada al microservicio de movimiento utilizando Feign
+        CuentaDto cuentaDto = CuentaDto.builder()
+                .numeroCuenta("12345678")
+                .tipoCuenta("Corriente")
+                .saldoInicial(1000)
+                .build();
+        ClientDto clientDto = ClientDto.builder()
+                .nombre("Salvatore Torres")
+                .genero("Masculino")
+                .direccion("Lima, Peru")
+                .identificacion("12345678")
+                .telefono("123456789")
+                .password("12345")
+                .cuentaDto(cuentaDto)
+                .build();
         ClientDto client = clientService.save(clientDto);
         List<CuentaDtoFeign> lscuentaDtoFeign = clientService.getByAccount(client.getId());
         for (CuentaDtoFeign dtoFeign :lscuentaDtoFeign) {
