@@ -1,4 +1,4 @@
-package com.example.prueba_tecnica.controller;
+package com.example.prueba_tecnica.controllers;
 
 import lombok.Builder;
 import lombok.Getter;

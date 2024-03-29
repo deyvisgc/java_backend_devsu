@@ -1,8 +1,6 @@
 package com.example.prueba_tecnica.dto;
 import com.example.prueba_tecnica.entity.Movimiento;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.Min;
@@ -18,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CuentaDto {
+    @ApiModelProperty(hidden = true)
     private Long cuenta_id;
     @Size(min=1, max=30, message="El numero de cuenta debe tener 1 hasta 30 digitos.")
     @NotBlank(message = "Numero de cuenta es requerido.")
@@ -27,16 +26,17 @@ public class CuentaDto {
     @NotNull(message = "El saldo Inicial es requerido.")
     @Min(value = 1, message = "El saldo inicial debe ser mayor a 0")
     private BigDecimal saldoInicial;
-
+    @ApiModelProperty(hidden = true)
     private BigDecimal saldoActual;
     @Min(value = 1, message = "El identificador del cliente debe ser mayor a 0.")
     @NotNull(message = "Se requiere el identificador del cliente.")
     private Long clienteId;
-
+    @ApiModelProperty(hidden = true)
     private String nombreCliente;
-
+    @ApiModelProperty(hidden = true)
     @Builder.Default
     private boolean estado= true;
+    @ApiModelProperty(hidden = true)
     private List<Movimiento> movimiento;
 
 }

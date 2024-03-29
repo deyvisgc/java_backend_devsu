@@ -1,11 +1,12 @@
-package com.example.prueba_tecnica.controller;
+package com.example.prueba_tecnica.controllers;
 
 import com.example.prueba_tecnica.dto.CuentaDto;
-import com.example.prueba_tecnica.dto.MovimientoDto;
 import com.example.prueba_tecnica.exception.AccountException;
 import com.example.prueba_tecnica.service.CuentaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,23 +22,30 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping ("/api/cuentas")
+@Api(tags = "Api Cuenta", description = "Rutas para el servicio de cuentas")
 public class CuentaController {
     @Autowired
     private CuentaService cuentaService ;
+    @ApiOperation(value = "Recuperar cuentas", notes = "Obtiene una lista de todas los cuentas disponibles")
+
     @GetMapping("/")
     public ResponseEntity<List<CuentaDto>> getAll(){
         return ResponseEntity.ok(cuentaService.listAll());
     }
-
+    @ApiOperation(value = "Recuperar una cuenta.", notes = "Recuperar una cuenta a través de su identificación única.")
     @GetMapping(value = "/{id}")
     public ResponseEntity<CuentaDto> getById(@PathVariable("id") Long id) {
         CuentaDto result =  cuentaService.getById(id);
         return ResponseEntity.ok(result);
     }
+    @ApiOperation(value = "Recuperar cuentas por ID de cliente.", notes = "Recuperar cuentas por ID de cliente: obtener información de cuentas asociadas a un cliente.")
+
     @GetMapping(value = "/clients/{id}")
     public ResponseEntity<List<CuentaDto>> getByIdClient(@PathVariable("id") Long id) {
         return ResponseEntity.ok(cuentaService.getByIdClient(id));
     }
+    @ApiOperation(value = "Crear Cuenta", notes = "Registrar nueva cuenta con detalles como número, saldo inicial y tipo.")
+
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CuentaDto cuentaDto, BindingResult result){
         if (result.hasErrors()) {
@@ -45,6 +53,8 @@ public class CuentaController {
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(cuentaService.save(cuentaDto));
     }
+    @ApiOperation(value = "Actualizar Cuenta", notes = "Modificar la información de una cuenta existente.")
+
     @PutMapping(value = "/{id}")
     public ResponseEntity<CuentaDto> update(@PathVariable("id") Long id, @Valid @RequestBody CuentaDto cuentaDto, BindingResult result){
         log.info("Result: {}", result);
@@ -53,7 +63,7 @@ public class CuentaController {
         }
         return ResponseEntity.ok(cuentaService.update(id, cuentaDto));
     }
-
+    @ApiOperation(value = "Eliminar Cuenta", notes = "Eliminar la información de una cuenta existente.")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id){
         cuentaService.delete(id);

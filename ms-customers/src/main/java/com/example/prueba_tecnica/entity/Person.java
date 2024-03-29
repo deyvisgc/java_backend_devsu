@@ -2,7 +2,6 @@
 package com.example.prueba_tecnica.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

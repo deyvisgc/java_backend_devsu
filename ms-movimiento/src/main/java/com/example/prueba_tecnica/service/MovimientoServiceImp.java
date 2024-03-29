@@ -14,14 +14,10 @@ import com.example.prueba_tecnica.repository.MovimientoRepository;
 import com.example.prueba_tecnica.util.TipoMovimiento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +41,7 @@ public class MovimientoServiceImp implements MovimientoService {
                     .map(movimientoMapper::movimientoToMovimientoDto)
                     .collect(Collectors.toList());
         } catch (RecursoNoEncontradoException ex) {
-            throw new RecursoNoEncontradoException("No se encontro informaciòn de movimientos");
+            throw new RecursoNoEncontradoException("No se encontro información de movimientos");
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
@@ -59,7 +55,7 @@ public class MovimientoServiceImp implements MovimientoService {
             if (movimiento.isPresent()) {
                 return movimientoMapper.movimientoToMovimientoDto(movimiento.get());
             }
-            throw new RecursoNoEncontradoException("No se encontro movimientos relacionado con el id: "  + id);
+            throw new RecursoNoEncontradoException("No se encontro movimientos relacionado con el identificador: "  + id);
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
@@ -73,14 +69,14 @@ public class MovimientoServiceImp implements MovimientoService {
             log.info("INICIO:  REGISTRAR UN MOVIMIENTO");
             BigDecimal newSaldo = BigDecimal.ZERO;
             if ( Objects.isNull(movimientoDto.getCuenta()) || movimientoDto.getCuenta().getId() == null){
-                throw new RecursoNoEncontradoException("El identificador de la cuenta no puede ser nullo");
+                throw new RecursoNoEncontradoException("El identificador de la cuenta no puede ser null");
             }
 
             CuentaDto cuenta = cuentaService.getById(movimientoDto.getCuenta().getId());
             if (movimientoDto.getTipoMovimiento().equalsIgnoreCase(TipoMovimiento.DEPOSITO.getDescripcion())) {
                 newSaldo = cuenta.getSaldoActual().add(movimientoDto.getValor().abs());
                 movimientoDto.setValor(movimientoDto.getValor().abs());
-            } else {
+            } else if (movimientoDto.getTipoMovimiento().equalsIgnoreCase(TipoMovimiento.RETIRO.getDescripcion())) {
                 // Comprobar si el saldo actual es menor que el valor del movimiento
                 if (cuenta.getSaldoActual().compareTo(BigDecimal.ZERO) == 0) {
                     throw new AccountException("Saldo no disponible");
@@ -95,6 +91,8 @@ public class MovimientoServiceImp implements MovimientoService {
                 newSaldo = cuenta.getSaldoActual().subtract(movimientoDto.getValor().abs()); //devuelvo el valor absoluto
                 // Valido si el valor es positivo o negativo
                 movimientoDto.setValor(movimientoDto.getValor().signum() == 1 ?  movimientoDto.getValor().negate() : movimientoDto.getValor());
+            } else {
+                throw new AccountException("El tipo de movimiento debe ser Depósito o Retiro.");
             }
             log.info("NEW SALDO: {}", newSaldo);
             movimientoDto.setSaldo(newSaldo);
@@ -128,7 +126,7 @@ public class MovimientoServiceImp implements MovimientoService {
         try {
             BigDecimal newSaldo = BigDecimal.ZERO;
             if (id == null){
-                throw new AccountException("El identificador del movimiento no puede ser nullo: " + id);
+                throw new AccountException("El identificador del movimiento no puede ser null: " + id);
             }
             CuentaDto cuenta = cuentaService.getById(movimientoDto.getCuenta().getId());
             Optional<Movimiento> existMovimiento = movimientoRepository.findById(id);
@@ -137,20 +135,30 @@ public class MovimientoServiceImp implements MovimientoService {
                 if (movimientoDto.getTipoMovimiento().equalsIgnoreCase(TipoMovimiento.DEPOSITO.getDescripcion())) {
                     movimientoDto.setValor(movimientoDto.getValor().abs());
                     newSaldo = cuenta.getSaldoActual().add(movimientoDto.getValor().abs());
-                } else {
-
-                    BigDecimal newSaldoRest = existMovimiento.get().getValue().subtract(movimientoDto.getValor());
-
+                } else if (movimientoDto.getTipoMovimiento().equalsIgnoreCase(TipoMovimiento.RETIRO.getDescripcion())) {
                     if (cuenta.getSaldoActual().compareTo(BigDecimal.ZERO) == 0) {
-
+                        BigDecimal newSaldoRest = existMovimiento.get().getValue().subtract(movimientoDto.getValor());
                         if (newSaldoRest.compareTo(BigDecimal.ZERO) == 0) {
                             throw new AccountException("Saldo no disponible");
                         }
                         newSaldo = newSaldoRest.abs();
                     } else {
-                        newSaldo = cuenta.getSaldoActual().subtract(movimientoDto.getValor().abs());
+                        if (movimientoDto.getValor().abs().compareTo(existMovimiento.get().getValue().abs()) < 0) {
+                            // Si el valor del nuevo movimiento es menor que el valor del movimiento registrado previamente, se debe sumar el monto restante
+                            newSaldo = existMovimiento.get().getBalance().add(movimientoDto.getValor().abs());
+                        }  else if (cuenta.getSaldoActual().compareTo(movimientoDto.getValor().abs()) < 0) {
+                            String mensaje = String.format("Saldo Actual: %s, %s: %s - No tienes saldo suficiente para el movimiento",
+                                    cuenta.getSaldoActual(),
+                                    movimientoDto.getTipoMovimiento(),
+                                    movimientoDto.getValor().abs());
+                            throw new AccountException(mensaje);
+                        } else {
+                            newSaldo = cuenta.getSaldoActual().subtract(movimientoDto.getValor().abs());
+                        }
                     }
-                    log.info(newSaldoRest.toString());
+                    movimientoDto.setValor(movimientoDto.getValor().signum() == 1 ? movimientoDto.getValor().negate() : movimientoDto.getValor());
+                } else {
+                    throw new AccountException("El tipo de movimiento debe ser Depósito o Retiro.");
                 }
                 log.info("NEW SALDO: {}", newSaldo);
                 movimientoDto.setSaldo(newSaldo);
@@ -170,7 +178,7 @@ public class MovimientoServiceImp implements MovimientoService {
                         .cuentaId(movimientoDto.getCuenta().getId())
                         .build();
                 auditoriaService.save(auditoriaDto);
-                log.info("FIN:  ACTUALIZAR UN MOVIMIENTO");
+                log.info("FIN: ACTUALIZAR UN MOVIMIENTO");
                 return movimientoMapper.movimientoToMovimientoDto(result);
             } else {
                 throw new RecursoNoEncontradoException("No existe cuenta relacionada con el identificador: " + id);
@@ -184,12 +192,12 @@ public class MovimientoServiceImp implements MovimientoService {
     public void delete(Long id) {
         try {
             movimientoRepository.deleteById(id);
-            System.out.println("Cliente eliminado correctamente");
-        } catch (EmptyResultDataAccessException e) {
-            System.out.println("No se encontró ningún cliente con el ID proporcionado");
+            log.info("Movimiento eliminado correctamente");
+        } catch (Exception ex) {
+            log.error("ERROR: {}", ex.getMessage());
+            throw ex;
         }
     }
-
     @Override
     public List<ReporteDto> generarReporte(String fechaIni, String fechaFin, Long cliente) {
         try {
@@ -217,7 +225,7 @@ public class MovimientoServiceImp implements MovimientoService {
                         return reporteDto;
                     }).collect(Collectors.toList());
             if (reporte.size() == 0) {
-                throw new RecursoNoEncontradoException("No se encontro informaciòn de movimientos");
+                throw new RecursoNoEncontradoException("No se encontro información de movimientos");
             }
             log.info("FIN: OBTENER REPORTES MOVIMIENTOS");
             return reporte;

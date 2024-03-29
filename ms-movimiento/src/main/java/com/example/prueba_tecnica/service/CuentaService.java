@@ -1,7 +1,6 @@
 package com.example.prueba_tecnica.service;
 
 import com.example.prueba_tecnica.dto.CuentaDto;
-import com.example.prueba_tecnica.dto.MovimientoDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

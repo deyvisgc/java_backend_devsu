@@ -11,10 +11,7 @@ import com.example.prueba_tecnica.repository.ClientRepository;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,7 +38,7 @@ public class ClientServiceImp implements ClientService {
             log.info("FIN: LISTAR CLIENTES");
             return list;
         } catch (RecursoNoEncontradoException ex) {
-            throw new RecursoNoEncontradoException("No se encontro informaciòn de clientes");
+            throw new RecursoNoEncontradoException("No se encontro información de clientes");
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
@@ -94,7 +91,7 @@ public class ClientServiceImp implements ClientService {
     */
     @Override
     public ClientDto save(ClientDto clientDto) {
-        log.info("INICIO:  CREAR UN CIENTE");
+
         Client result = new Client();
         try {
             Client cliente = clienteMapper.clienteDTOtoCliente(clientDto);
@@ -108,9 +105,12 @@ public class ClientServiceImp implements ClientService {
                 cuentaDtoFeign.setEstado(true);
                 cuentaClient.saveCuenta(cuentaDtoFeign);
             }
-            log.info("FIN:  CREAR UN CIENTE");
+            log.info("FIN: CREAR UN CIENTE");
             return clienteMapper.clienteToClienteDTO(result);
-        } catch (Exception ex) {
+        } catch (FeignException feignException) {
+            log.error("ERROR FeignException: {}", feignException.getMessage());
+            throw new CustomException(feignException.getMessage());
+        }  catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
         }
@@ -119,7 +119,7 @@ public class ClientServiceImp implements ClientService {
     @Override
     public ClientDto update(Long id, ClientDto clientDto) {
         try {
-            log.info("INICIO:  ACTUALIZAR UN CIENTE");
+
             if (id == null){
                 throw new RecursoNoEncontradoException("El identificador del cliente no puede ser null: " + id);
             }
@@ -133,7 +133,7 @@ public class ClientServiceImp implements ClientService {
                 clientDtoResul = clienteMapper.clienteToClienteDTO(clientRepository.save(client));
             } else {
                 // Manejar el caso en que el cliente no exista en la base de datos
-                throw new RecursoNoEncontradoException("No existe informaciòn con el identificador: " + id);
+                throw new RecursoNoEncontradoException("No existe información con el identificador: " + id);
             }
             log.info("FIN: ACTUALIZAR UN CIENTE");
             return clientDtoResul;

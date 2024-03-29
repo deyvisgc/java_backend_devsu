@@ -126,7 +126,5 @@ class ClientTest {
         doNothing().when(clientRepositoryMock).deleteById(clientId);
         // Llamar al método para eliminar un cliente
         clientServiceImp.delete(clientId);
-        // Verificar que se llame al método deleteById del repositorio con el ID correcto
-        //verify(clientRepositoryMock).deleteById(3L);
     }
 }

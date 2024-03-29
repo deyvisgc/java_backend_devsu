@@ -2,6 +2,7 @@
 package com.example.prueba_tecnica.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,8 +19,10 @@ import java.util.List;
 @Entity
 @Table(name = "account")
 public class Cuenta {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @ApiModelProperty(value = "Id de la Cuenta", example = "100")
     @Column(name="account_id")
     private Long id;
     @Column(name="acc_number")

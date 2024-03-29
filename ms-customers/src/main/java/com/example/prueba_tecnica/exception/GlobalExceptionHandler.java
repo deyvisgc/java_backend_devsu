@@ -26,9 +26,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInternalServerError(Exception ex) {
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     }
-    // Agrega más métodos para manejar otras clases de excepciones
-
-    // Clase para representar una respuesta de error
     public static class ErrorResponse {
         private int status;
         private String message;

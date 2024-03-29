@@ -4,12 +4,9 @@ spring:
   application:
     name: ms-movimiento
   datasource:
-    url: jdbc:mysql://localhost:3306/basedatos?useSSL=false&serverTimezone=UTC
-    username: root
-    password:
-    #url: ${DATABASE_URL}
-    #username: ${DATABASE_USERNAME}
-    #password: ${DATABASE_PASSWORD}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -21,8 +18,9 @@ spring:
         #show_sql: true # Para mostrar las consultas SQL en la consola
         format_sql: true # Para formatear las consultas SQL en la consola
 ms-customer:
-  #url: http://cliente:8080
-  url: http://localhost:8080
+  url: http://cliente:8080
+swagger:
+  url: /v2/api-docs
 logging:
   level:
     org.springframework.cloud.config: ERROR

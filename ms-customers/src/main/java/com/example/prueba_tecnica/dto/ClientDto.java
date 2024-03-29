@@ -1,8 +1,6 @@
 package com.example.prueba_tecnica.dto;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +14,7 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 
 public class ClientDto {
+    @ApiModelProperty(hidden = true)
     private Long id;
     @NotBlank(message = "Nombre es requerido")
     private String nombre;
@@ -37,6 +36,7 @@ public class ClientDto {
     /*Cuenta Opcional*/
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     CuentaDto cuentaDto;
+    @ApiModelProperty(hidden = true)
     @Builder.Default
     private boolean estado= true;
 }

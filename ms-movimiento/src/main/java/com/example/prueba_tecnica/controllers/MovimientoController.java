@@ -1,4 +1,4 @@
-package com.example.prueba_tecnica.controller;
+package com.example.prueba_tecnica.controllers;
 
 import com.example.prueba_tecnica.dto.MovimientoDto;
 import com.example.prueba_tecnica.dto.ReporteDto;
@@ -6,6 +6,9 @@ import com.example.prueba_tecnica.exception.AccountException;
 import com.example.prueba_tecnica.service.MovimientoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +25,20 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping ("/api/movimientos")
-public class MovimientoController {
+@Api(tags = "Api Movimiento", description = "Rutas para el servicio de movimientos")
 
+public class MovimientoController {
     @Autowired
     private MovimientoService movimientoService ;
+    @ApiOperation(value = "Listar Movimientos", notes = "Obtiene una lista de los movimientos disponibles")
     @GetMapping("/")
     public ResponseEntity<List<MovimientoDto>> getAll(){
         return ResponseEntity.ok(movimientoService.listAll());
     }
+    @ApiOperation(value = "Reporte de movimiento.", notes = "Reporte de movimientos por rango de fechas y cliente.")
     @GetMapping(value = "/reportes")
-    public ResponseEntity<List<ReporteDto>> getReporte(@RequestParam("fecha") String rangoFecha, @RequestParam("cliente") Long cliente) throws ParseException {
+    public ResponseEntity<List<ReporteDto>> getReporte(@ApiParam(value = "Descripción de la fecha", example = " \"2024-03-27\" a \"2024-03-27\"", required = true) @RequestParam("fecha") String rangoFecha,
+                                                       @ApiParam(value = "ID del cliente", example = "123456789", required = true) @RequestParam("cliente") Long cliente) throws ParseException {
         log.info("INICIO: OBTENER REPORTES MOVIMIENTOS");
         // Divido el String en las dos fechas separadas
         String[] fechasSeparadas = rangoFecha.split("\" a \"");
@@ -53,13 +55,14 @@ public class MovimientoController {
         }
     }
     @GetMapping(value = "/{id}")
-    public ResponseEntity<MovimientoDto> getClienById(@PathVariable("id") Long id) {
+    public ResponseEntity<MovimientoDto> getClienById( @PathVariable("id") Long id) {
         MovimientoDto movimientoDto =  movimientoService.getById(id);
         if (null==movimientoDto){
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(movimientoDto);
     }
+    @ApiOperation(value = "Registrar Movimiento", notes = "Para registrar un movimiento, basta con enviar el ID de la cuenta junto con la información adicional necesaria.")
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody MovimientoDto movimientoDto, BindingResult result){
         log.info("INICIO:  REGISTRAR UN MOVIMIENTO");
@@ -68,7 +71,7 @@ public class MovimientoController {
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(movimientoService.save(movimientoDto));
     }
-
+    @ApiOperation(value = "Actualizar Movimiento", notes = "Para actualizar un movimiento, basta con enviar el ID de la cuenta junto con la información adicional necesaria.")
    @PutMapping(value = "/{id}")
     public ResponseEntity<MovimientoDto> update(@PathVariable("id") Long id, @Valid @RequestBody MovimientoDto clientDto, BindingResult result){
        log.info("INICIO:  ACUTUALIZAR UN MOVIMIENTO");
@@ -77,9 +80,9 @@ public class MovimientoController {
        }
         return ResponseEntity.ok(movimientoService.update(id, clientDto));
     }
-
+    @ApiOperation(value = "Eliminar Movimiento", notes = "Eliminar la información de un movimiento existente.")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id){
+    public ResponseEntity<String> delete(@PathVariable("id") Long id){
         movimientoService.delete(id);
         return ResponseEntity.ok("Eliminado Correctamente");
     }

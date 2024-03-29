@@ -2,7 +2,6 @@ package com.example.prueba_tecnica.mapper;
 
 import com.example.prueba_tecnica.dto.ClientDto;
 import com.example.prueba_tecnica.entity.Client;
-import lombok.Builder;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,8 +23,6 @@ public interface ClienteMapper {
             @Mapping(source = "id", target = "id")
     })
     ClientDto clienteToClienteDTO(Client cliente);
-
-    // Necesitarás implementar este método si deseas convertir un DTO de Cliente a un objeto Cliente
     @InheritInverseConfiguration
     Client clienteDTOtoCliente(ClientDto clienteDTO);
 }

@@ -11,9 +11,6 @@ import com.example.prueba_tecnica.repository.CuentaRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,7 +40,7 @@ public class CuentaServiceImp implements CuentaService {
             log.error("ERROR FeignException: {}", feignException.getMessage());
             throw new AccountException(feignException.getMessage());
         } catch (RecursoNoEncontradoException ex) {
-            throw new RecursoNoEncontradoException("No se encontro informaciòn de cuentas");
+            throw new RecursoNoEncontradoException("No se encontro información de cuentas");
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
@@ -61,7 +58,7 @@ public class CuentaServiceImp implements CuentaService {
                 }
                 return cuentaMapper.cuentaTocuentaDto(cuenta.get());
             }
-            throw new RecursoNoEncontradoException("No se encontro cuentas relacionas con el id: "  + id);
+            throw new RecursoNoEncontradoException("No se encontro cuentas relacionadas con el identificador: "  + id);
         } catch (FeignException feignException) {
             log.error("ERROR FeignException: {}", feignException.getMessage());
             throw new AccountException(feignException.getMessage());
@@ -77,7 +74,7 @@ public class CuentaServiceImp implements CuentaService {
             log.info("INICIO: LISTAR CUENTAS POR ID CLIENTE");
             List<Cuenta> lscuentas = cuentaRepository.findAccountsByClientId(id);
             if (lscuentas.size() == 0) {
-                throw new RecursoNoEncontradoException("No se encontro cuentas relacionas con el identificacod del cliente: "  + id);
+                throw new RecursoNoEncontradoException("No se encontro cuentas relacionadas con el identificador del cliente: "  + id);
             }
             List<CuentaDto> list = lscuentas.stream()
                     .map( cuenta -> {
@@ -89,6 +86,9 @@ public class CuentaServiceImp implements CuentaService {
                     .collect(Collectors.toList());
             log.info("FIN: LISTAR CUENTAS POR ID CLIENTE");
             return list;
+        }  catch (FeignException feignException) {
+            log.error("ERROR FeignException: {}", feignException.getMessage());
+            throw new AccountException(feignException.getMessage());
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
@@ -106,6 +106,9 @@ public class CuentaServiceImp implements CuentaService {
                 clientResultd.setNameCustomer(clientDtoFeign.getNombre());
             }
             return cuentaMapper.cuentaTocuentaDto(clientResultd);
+        }  catch (FeignException feignException) {
+            log.error("ERROR FeignException: {}", feignException.getMessage());
+            throw new AccountException(feignException.getMessage());
         } catch (Exception ex) {
             log.error("ERROR: {}", ex.getMessage());
             throw ex;
@@ -128,9 +131,12 @@ public class CuentaServiceImp implements CuentaService {
                 }
                 return result;
             } else {
-                throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al id: "  + id);
+                throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al identificador: "  + id);
             }
-        }  catch (Exception ex) {
+        }   catch (FeignException feignException) {
+            log.error("ERROR FeignException: {}", feignException.getMessage());
+            throw new AccountException(feignException.getMessage());
+        } catch (Exception ex) {
             log.error("ERRROR: {}", ex.getMessage());
             throw ex;
         }
@@ -141,7 +147,7 @@ public class CuentaServiceImp implements CuentaService {
             cuentaRepository.deleteById(id);
             log.info("Cliente eliminado correctamente");
         } catch (RecursoNoEncontradoException e) {
-            throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al id: "  + id);
+            throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al identificador: "  + id);
         } catch (Exception ex) {
             log.error("ERRROR: {}", ex.getMessage());
             throw ex;
@@ -154,7 +160,7 @@ public class CuentaServiceImp implements CuentaService {
             cuentaRepository.updateSaldoActual(cuentaId, nuevoSaldoActual);
             log.info("Saldo Actual actualizado correctamente");
         } catch (RecursoNoEncontradoException e) {
-            throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al id: "  + cuentaId);
+            throw new RecursoNoEncontradoException("No se encontro la cuenta relacionada al identificador: "  + cuentaId);
         } catch (Exception ex) {
             log.error("ERRROR: {}", ex.getMessage());
             throw ex;
