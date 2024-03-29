@@ -90,8 +90,7 @@ public class ClientServiceImp implements ClientService {
     }
 
     /*
-     * Existira dos tipos de registros de cliente:
-     * getTipo_negocio: 0 creara cliente, 1: cleara cliente y cuenta
+     * CuentaDto: igual a null creara cliente, caso contrario creara cliente y cuenta
     */
     @Override
     public ClientDto save(ClientDto clientDto) {
@@ -100,12 +99,12 @@ public class ClientServiceImp implements ClientService {
         try {
             Client cliente = clienteMapper.clienteDTOtoCliente(clientDto);
             result = clientRepository.save(cliente);
-            if (clientDto.getTipo_negocio().equals("1")) {
+            if (Objects.nonNull(clientDto.getCuentaDto())) {
                 CuentaDtoFeign cuentaDtoFeign = new CuentaDtoFeign();
                 cuentaDtoFeign.setClienteId(result.getId());
-                cuentaDtoFeign.setNumeroCuenta(clientDto.getNumeroCuenta());
-                cuentaDtoFeign.setTipoCuenta(clientDto.getTipoCuenta());
-                cuentaDtoFeign.setSaldoInicial(clientDto.getSaldoInicial());
+                cuentaDtoFeign.setNumeroCuenta(clientDto.getCuentaDto().getNumeroCuenta());
+                cuentaDtoFeign.setTipoCuenta(clientDto.getCuentaDto().getTipoCuenta());
+                cuentaDtoFeign.setSaldoInicial(clientDto.getCuentaDto().getSaldoInicial());
                 cuentaDtoFeign.setEstado(true);
                 cuentaClient.saveCuenta(cuentaDtoFeign);
             }

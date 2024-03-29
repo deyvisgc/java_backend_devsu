@@ -3,6 +3,7 @@ version: "3.9"
 services:
   cliente:
     container_name: cliente
+    restart: always
     build:
       context: ./ms-customers
       dockerfile: dockerfile
@@ -18,6 +19,7 @@ services:
       - db_devsu
   movimiento:
     container_name: movimiento
+    restart: always
     build:
       context: ./ms-movimiento
       dockerfile: dockerfile
@@ -40,7 +42,6 @@ services:
     volumes:
       - ./database.sql:/docker-entrypoint-initdb.d/database.sql
       - db:/var/lib/mysql
-    # env_file: .env  
     environment:
       MYSQL_USER: devsu
       MYSQL_DATABASE: basedatos

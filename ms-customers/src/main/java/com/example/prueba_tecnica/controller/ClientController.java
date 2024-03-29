@@ -32,17 +32,6 @@ public class ClientController {
     public ResponseEntity<ClientDto> findById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(clientService.getById(id));
     }
-    /*
-    @GetMapping(value = "/account/{id}")
-    public ResponseEntity<ClientDto> findClientAndAccountById(@PathVariable("id") Long id) {
-        ClientDto client =  clientService.getById(id);
-        if (null==client){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(client);
-    }
-
-     */
     @PostMapping
     public ResponseEntity<ClientDto> create(@Valid @RequestBody ClientDto clientDto, BindingResult result){
         if (result.hasErrors()) {

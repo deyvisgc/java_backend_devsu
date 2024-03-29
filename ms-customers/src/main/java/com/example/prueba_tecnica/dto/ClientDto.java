@@ -1,5 +1,8 @@
 package com.example.prueba_tecnica.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +14,7 @@ import javax.validation.constraints.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class ClientDto {
     private Long id;
     @NotBlank(message = "Nombre es requerido")
@@ -30,12 +34,9 @@ public class ClientDto {
     private String telefono;
     @NotBlank(message = "La contraseña es requerido")
     private String password;
-    @Builder.Default
-    private String tipo_negocio = "0";
-    /*Cuenta*/
-    private String numeroCuenta;
-    private String tipoCuenta;
-    private double saldoInicial;
+    /*Cuenta Opcional*/
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    CuentaDto cuentaDto;
     @Builder.Default
     private boolean estado= true;
 }

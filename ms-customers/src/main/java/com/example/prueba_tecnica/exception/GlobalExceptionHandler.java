@@ -13,7 +13,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleCustomException(CustomException ex) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getErrorMessage());
     }
-/*
     @ExceptionHandler(RecursoNoEncontradoException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
@@ -25,9 +24,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ErrorResponse handleInternalServerError(Exception ex) {
-        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error interno del servidor");
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     }
- */
     // Agrega más métodos para manejar otras clases de excepciones
 
     // Clase para representar una respuesta de error

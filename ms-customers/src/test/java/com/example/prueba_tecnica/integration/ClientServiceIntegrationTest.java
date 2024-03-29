@@ -18,7 +18,7 @@ public class ClientServiceIntegrationTest {
     @Test
     public void testCreateAccount_Successful() {
         /*
-        * setTipo_negocio: 0 crea cliente, 1 crea clientes y cuentas
+        * CuentaDto: igual a null creara cliente, caso contrario creara cliente y cuenta
         * */
         ClientDto clientDto = new ClientDto();
         clientDto.setNombre("Salvatore Torres");
@@ -29,14 +29,13 @@ public class ClientServiceIntegrationTest {
         clientDto.setTelefono("123456789");
         clientDto.setPassword("12345");
         // Datos de la cuenta
-        clientDto.setTipo_negocio("1");
-        clientDto.setNumeroCuenta("12345678");
-        clientDto.setTipoCuenta("Corriente");
-        clientDto.setSaldoInicial(1000);
+        clientDto.getCuentaDto().setNumeroCuenta("12345678");
+        clientDto.getCuentaDto().setTipoCuenta("Corriente");
+        clientDto.getCuentaDto().setSaldoInicial(1000);
         clientDto.setEstado(true);
         // Simular llamada al microservicio de movimiento utilizando Feign
-        ClientDto createdAccount = clientService.save(clientDto);
-        List<CuentaDtoFeign> lscuentaDtoFeign = clientService.getByAccount(createdAccount.getId());
+        ClientDto client = clientService.save(clientDto);
+        List<CuentaDtoFeign> lscuentaDtoFeign = clientService.getByAccount(client.getId());
         for (CuentaDtoFeign dtoFeign :lscuentaDtoFeign) {
             // Verificar que se crea la cuenta correctamente en el microservicio cliente
             assertEquals("12345678", dtoFeign.getNumeroCuenta());
