@@ -1,25 +1,44 @@
 package com.example.prueba_tecnica.service;
 
+import com.example.prueba_tecnica.dto.AuditoriaDto;
 import com.example.prueba_tecnica.exception.CustomException;
 import com.example.prueba_tecnica.client.CuentaClient;
 import com.example.prueba_tecnica.client.CuentaDtoFeign;
 import com.example.prueba_tecnica.dto.ClientDto;
 import com.example.prueba_tecnica.entity.Client;
 import com.example.prueba_tecnica.exception.RecursoNoEncontradoException;
+import com.example.prueba_tecnica.kafka.Producer;
 import com.example.prueba_tecnica.mapper.ClienteMapper;
 import com.example.prueba_tecnica.repository.ClientRepository;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.util.concurrent.ListenableFuture;
 @Slf4j
 @Service
 
 public class ClientServiceImp implements ClientService {
+    @Value("${topic}")
+    String topico;
+    /*
+    @Autowired
+    KafkaTemplate<String, AuditoriaDto> kafkaTemplate;
+
+     */
     @Autowired
     private ClientRepository clientRepository;
     @Autowired
@@ -27,16 +46,14 @@ public class ClientServiceImp implements ClientService {
     @Autowired
     private CuentaClient cuentaClient;
     @Override
-    public List<ClientDto> listAll() {
+    public Page<ClientDto> listAll(Pageable pageable) {
+
         log.info("INICIO: LISTAR CLIENTES");
         try {
-            List<Client> lsclientes = clientRepository.findAll();
-
-             List<ClientDto> list = lsclientes.stream()
-                    .map(clienteMapper::clienteToClienteDTO)
-                    .collect(Collectors.toList());
+            Page<ClientDto> lsclientes = clientRepository.findAllByStatus(pageable, '1')
+                    .map(c -> clienteMapper.clienteToClienteDTO(c));
             log.info("FIN: LISTAR CLIENTES");
-            return list;
+             return  lsclientes;
         } catch (RecursoNoEncontradoException ex) {
             throw new RecursoNoEncontradoException("No se encontro información de clientes");
         } catch (Exception ex) {

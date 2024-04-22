@@ -2,12 +2,16 @@ package com.example.prueba_tecnica.controllers;
 
 import com.example.prueba_tecnica.exception.CustomException;
 import com.example.prueba_tecnica.dto.ClientDto;
+import com.example.prueba_tecnica.exception.RecursoNoEncontradoException;
 import com.example.prueba_tecnica.service.ClientService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,17 +23,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 @Slf4j
 @RestController
 @RequestMapping ("api/clientes")
 @Api(tags = "Api Cliente", description = "Rutas para el servicio de clientes")
+@CrossOrigin("*")
 public class ClientController {
     @Autowired
     private ClientService clientService ;
     @ApiOperation(value = "Obtener clientes", notes = "Obtiene una lista de todos los clientes disponibles")
     @GetMapping("/")
-    public ResponseEntity<List<ClientDto>> getAll(){
-        return ResponseEntity.ok(clientService.listAll());
+    public ResponseEntity<Page<ClientDto>> getAll( @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "10") int size,
+                                                   @RequestParam(defaultValue = "id") String order,
+                                                   @RequestParam(defaultValue = "true") boolean asc){
+        try {
+            Page<ClientDto> users = clientService.listAll(PageRequest.of(page, size, Sort.by(order)));
+            if (!asc) {
+                users = clientService.listAll( PageRequest.of(page, size, Sort.by(order).descending()));
+            }
+            if (Objects.isNull(users) || users.isEmpty()) {
+                throw new RecursoNoEncontradoException("Informacion no encontrada");
+            }
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            log.info("Error: " + e);
+            throw new CustomException(e.getMessage());
+        }
     }
     @ApiOperation(value = "Obtener Cliente", notes = "Recuperar un cliente a través de su identificación única.")
     @GetMapping(value = "/{id}")

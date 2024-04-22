@@ -21,8 +21,8 @@ import java.util.List;
 public class Cuenta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @ApiModelProperty(value = "Id de la Cuenta", example = "100")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seqCuenta")
+    @SequenceGenerator(name = "seqCuenta", allocationSize = 1, sequenceName = "SEQ_CUENTA")
     @Column(name="account_id")
     private Long id;
     @Column(name="acc_number")
@@ -34,7 +34,7 @@ public class Cuenta {
     @Column(name="acc_balance_actual")
     private BigDecimal balanceActual;
     @Column(name="acc_status")
-    private boolean status;
+    private char status;
     @Column(name="client_id")
     private Long clienteId;
     @JsonIgnore

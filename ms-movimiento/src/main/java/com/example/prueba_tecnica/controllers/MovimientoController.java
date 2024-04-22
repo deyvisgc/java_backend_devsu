@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping ("/api/movimientos")
 @Api(tags = "Api Movimiento", description = "Rutas para el servicio de movimientos")
-
+@CrossOrigin("*")
 public class MovimientoController {
     @Autowired
     private MovimientoService movimientoService ;

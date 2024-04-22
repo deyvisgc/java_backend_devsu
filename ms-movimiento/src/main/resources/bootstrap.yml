@@ -4,21 +4,32 @@ spring:
   application:
     name: ms-movimiento
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
+    #url: ${DATABASE_URL}
+    #username: ${DATABASE_USERNAME}
+    #password: ${DATABASE_PASSWORD}
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:oracle:thin:@localhost:1521:xe
+    username: deyvisgc
+    password: deyvisgc1234
+    driver-class-name: oracle.jdbc.OracleDriver
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.Oracle12cDialect
     hibernate:
       ddl-auto: update # Opciones: validate, update, create-drop, none
     properties:
       hibernate:
         #show_sql: true # Para mostrar las consultas SQL en la consola
         format_sql: true # Para formatear las consultas SQL en la consola
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 ms-customer:
-  url: http://cliente:8080
+  #url: http://cliente:8080
+  url: http://localhost:8080
+topic: auditoria-topic
+
 swagger:
   url: /v2/api-docs
 logging:

@@ -8,5 +8,6 @@ import java.util.List;
 @Component
 public interface AuditoriaService {
     public List<AuditoriaDto> listAll();
+    public AuditoriaDto getById(Long  id);
     public AuditoriaDto save(AuditoriaDto AuditoriaDto);
 }

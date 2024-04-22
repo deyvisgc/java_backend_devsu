@@ -35,7 +35,7 @@ public class CuentaDto {
     private String nombreCliente;
     @ApiModelProperty(hidden = true)
     @Builder.Default
-    private boolean estado= true;
+    private char estado= '1';
     @ApiModelProperty(hidden = true)
     private List<Movimiento> movimiento;
 

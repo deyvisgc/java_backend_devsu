@@ -15,7 +15,7 @@ public class ReporteDto {
    private String tipo;
    private String numeroCuenta;
    private BigDecimal SaldoInicial;
-   private boolean estado;
+   private char estado;
    private BigDecimal movimiento;
    private BigDecimal SaldoDisponible;
    private String tipoMovimiento;

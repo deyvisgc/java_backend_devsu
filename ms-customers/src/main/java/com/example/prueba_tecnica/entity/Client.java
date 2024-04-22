@@ -13,13 +13,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "cliente")
 public class Client extends Person {
-    /*
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-
-     */
     @Column(name="client_password")
     private String password;
     @Column(name="client_status")
-    private boolean status;
+    private char status;
 }

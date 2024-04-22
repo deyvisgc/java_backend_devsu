@@ -1,0 +1,41 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: ms-client
+
+  #datasource:
+    #url: ${DATABASE_URL_AUDITORIA}
+    #username: ${DATABASE_USERNAME_AUDITORIA}
+    #password: ${DATABASE_PASSWORD_AUDITORIA}
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_transaction?useSSL=false&serverTimezone=UTC
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update # Opciones: validate, update, create-drop, none
+    properties:
+      hibernate:
+        #show_sql: true # Para mostrar las consultas SQL en la consola
+        format_sql: true # Para formatear las consultas SQL en la consola
+kafka:
+  bootstrap-servers: localhost:9092
+  consumer:
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    properties:
+      spring:
+        json:
+          trusted:
+            packages: "*"
+
+
+swagger:
+  url: /v2/api-docs
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG

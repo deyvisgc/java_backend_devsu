@@ -1,5 +1,6 @@
 package com.example.prueba_tecnica.service;
 
+import com.example.prueba_tecnica.Kafka.Producer;
 import com.example.prueba_tecnica.cliente.ClientDtoFeign;
 import com.example.prueba_tecnica.cliente.CustomerClient;
 import com.example.prueba_tecnica.dto.ReporteDto;
@@ -14,6 +15,9 @@ import com.example.prueba_tecnica.repository.MovimientoRepository;
 import com.example.prueba_tecnica.util.TipoMovimiento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -30,8 +35,10 @@ public class MovimientoServiceImp implements MovimientoService {
     private final MovimientoRepository movimientoRepository;
     private final MovimientoMapper movimientoMapper;
     private final CuentaService cuentaService;
-    private final AuditoriaService auditoriaService;
     private final CustomerClient customerClient;
+    private final KafkaTemplate<String, AuditoriaDto> kafkaTemplate;
+    @Value("${topic}")
+    String topico;
     @Override
     public List<MovimientoDto> listAll() {
 
@@ -103,15 +110,14 @@ public class MovimientoServiceImp implements MovimientoService {
             //Actualizado el saldoActual de la entidad cuenta
             cuentaService.updateSaldoActual(movimientoDto.getCuenta().getId(), newSaldo);
             // Insertar Transacciones
-            AuditoriaDto auditoriaDto = AuditoriaDto.builder()
-                    .tipoTransaccion(movimiento.getTypeMovement())
-                    .fecha(new Date())
-                    .usuario(cuenta.getNombreCliente())
-                    .descripcion("Se realizo un registro de transacction de" + movimientoDto.getTipoMovimiento())
-                    .monto(movimientoDto.getValor())
-                    .cuentaId(movimientoDto.getCuenta().getId())
-                    .build();
-            auditoriaService.save(auditoriaDto);
+            Producer producer = new Producer();
+            CompletableFuture<SendResult<String, AuditoriaDto>>  future = producer.send(kafkaTemplate, topico, producer.setAuditoria(movimiento.getTypeMovement(), cuenta.getNombreCliente(), movimientoDto.getValor(), movimientoDto.getCuenta().getId()));
+            future.whenCompleteAsync((r, t) -> {
+                if(t!=null) {
+                    throw new RuntimeException();
+                }
+                log.info("Se ha enviado el mensaje al topico: {}", topico);
+            });
             log.info("FIN: REGISTRAR UN MOVIMIENTO");
             return movimientoMapper.movimientoToMovimientoDto(result);
         }  catch (Exception ex) {
@@ -168,6 +174,7 @@ public class MovimientoServiceImp implements MovimientoService {
                 Movimiento result = movimientoRepository.save(movimiento);
                 //Actualizado el saldoActual de la entidad cuenta
                 cuentaService.updateSaldoActual(cuenta.getCuenta_id(), newSaldo);
+                /*
                 // Insertar Transacciones
                 AuditoriaDto auditoriaDto = AuditoriaDto.builder()
                         .tipoTransaccion(movimiento.getTypeMovement())
@@ -177,7 +184,9 @@ public class MovimientoServiceImp implements MovimientoService {
                         .monto(movimientoDto.getValor())
                         .cuentaId(movimientoDto.getCuenta().getId())
                         .build();
-                auditoriaService.save(auditoriaDto);
+                Producer producer = new Producer();
+
+                 */
                 log.info("FIN: ACTUALIZAR UN MOVIMIENTO");
                 return movimientoMapper.movimientoToMovimientoDto(result);
             } else {
@@ -218,7 +227,7 @@ public class MovimientoServiceImp implements MovimientoService {
                         reporteDto.setNumeroCuenta(movimiento.getAccount().getAccountNumber());
                         reporteDto.setTipo(movimiento.getAccount().getAccountType());
                         reporteDto.setSaldoInicial(movimiento.getAccount().getInitialBalance());
-                        reporteDto.setEstado(movimiento.getAccount().isStatus());
+                        reporteDto.setEstado(movimiento.getAccount().getStatus());
                         reporteDto.setMovimiento(movimiento.getValue());
                         reporteDto.setSaldoDisponible(movimiento.getBalance());
                         reporteDto.setTipoMovimiento(movimiento.getTypeMovement());

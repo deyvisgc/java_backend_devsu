@@ -32,7 +32,23 @@ services:
       - DATABASE_USERNAME=devsu
       - DATABASE_PASSWORD=marzo2024       
     depends_on:
-      - db_devsu      
+      - db_devsu
+  # auditoria:
+  #   container_name: auditoria
+  #   restart: always
+  #   build:
+  #     context: ./ms-transaction-auditoria
+  #     dockerfile: dockerfile
+  #   ports:
+  #     - "8085:8085"
+  #   networks:
+  #     - microservicios_net
+  #   environment:
+  #     - DATABASE_URL_AUDITORIA=jdbc:mysql://db_devsu:3306/db_transaction?useSSL=false&serverTimezone=UTC
+  #     - DATABASE_USERNAME_AUDITORIA=devsu
+  #     - DATABASE_PASSWORD_AUDITORIA=marzo2024       
+  #   depends_on:
+  #     - db_devsu         
   db_devsu:
     image: "mysql:5.7"
     container_name: db
@@ -50,9 +66,9 @@ services:
     networks:
       microservicios_net:
         aliases:
-          - db_net    
+          - db_net            
 networks:
   microservicios_net:
     driver: bridge
 volumes:
-  db: {}    
+  db: {} 

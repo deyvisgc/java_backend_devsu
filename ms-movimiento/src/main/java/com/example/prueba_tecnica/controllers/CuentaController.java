@@ -2,6 +2,7 @@ package com.example.prueba_tecnica.controllers;
 
 import com.example.prueba_tecnica.dto.CuentaDto;
 import com.example.prueba_tecnica.exception.AccountException;
+import com.example.prueba_tecnica.exception.RecursoNoEncontradoException;
 import com.example.prueba_tecnica.service.CuentaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +10,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -18,19 +22,35 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping ("/api/cuentas")
 @Api(tags = "Api Cuenta", description = "Rutas para el servicio de cuentas")
+@CrossOrigin("*")
 public class CuentaController {
     @Autowired
     private CuentaService cuentaService ;
     @ApiOperation(value = "Recuperar cuentas", notes = "Obtiene una lista de todas los cuentas disponibles")
-
-    @GetMapping("/")
-    public ResponseEntity<List<CuentaDto>> getAll(){
-        return ResponseEntity.ok(cuentaService.listAll());
+    @GetMapping()
+    public ResponseEntity<Page<CuentaDto>> getAll(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "id") String order,
+                                                  @RequestParam(defaultValue = "true") boolean asc){
+        try {
+            Page<CuentaDto> users = cuentaService.listAll(PageRequest.of(page, size, Sort.by(order)));
+            if (!asc) {
+                users = cuentaService.listAll( PageRequest.of(page, size, Sort.by(order).descending()));
+            }
+            if (Objects.isNull(users) || users.isEmpty()) {
+                throw new RecursoNoEncontradoException("Informacion no encontrada");
+            }
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            log.info("Error: " + e);
+            throw new AccountException(e.getMessage());
+        }
     }
     @ApiOperation(value = "Recuperar una cuenta.", notes = "Recuperar una cuenta a través de su identificación única.")
     @GetMapping(value = "/{id}")

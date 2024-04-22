@@ -38,5 +38,5 @@ public class ClientDto {
     CuentaDto cuentaDto;
     @ApiModelProperty(hidden = true)
     @Builder.Default
-    private boolean estado= true;
+    private char estado= '1';
 }

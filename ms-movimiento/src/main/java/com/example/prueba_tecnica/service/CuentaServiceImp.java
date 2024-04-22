@@ -1,7 +1,9 @@
 package com.example.prueba_tecnica.service;
 
+import com.example.prueba_tecnica.Kafka.Producer;
 import com.example.prueba_tecnica.cliente.ClientDtoFeign;
 import com.example.prueba_tecnica.cliente.CustomerClient;
+import com.example.prueba_tecnica.dto.AuditoriaDto;
 import com.example.prueba_tecnica.dto.CuentaDto;
 import com.example.prueba_tecnica.entity.Cuenta;
 import com.example.prueba_tecnica.exception.AccountException;
@@ -11,12 +13,18 @@ import com.example.prueba_tecnica.repository.CuentaRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -25,17 +33,19 @@ public class CuentaServiceImp implements CuentaService {
     private final CuentaRepository cuentaRepository;
     private final CuentaMapper cuentaMapper;
     private final CustomerClient customerClient;
+    private final KafkaTemplate<String, AuditoriaDto> kafkaTemplate;
+    @Value("${topic}")
+    String topico;
     @Override
-    public List<CuentaDto> listAll() {
+    public Page<CuentaDto> listAll(Pageable pageable) {
         try {
-            List<Cuenta> lscuenta = cuentaRepository.findAll();
-            return lscuenta.stream()
-                    .map( cuenta -> {
-                        ClientDtoFeign clientDtoFeign = customerClient.findByIdClient(cuenta.getClienteId()).getBody();
-                        cuenta.setNameCustomer(clientDtoFeign.getNombre());
-                        return cuenta;
-                    }).map(cuentaMapper::cuentaTocuentaDto)
-                    .collect(Collectors.toList());
+            Page<CuentaDto> lscuenta = cuentaRepository.findAllByStatus(pageable, '1')
+                    .map(c -> {
+                        ClientDtoFeign clientDtoFeign = customerClient.findByIdClient(c.getClienteId()).getBody();
+                        c.setNameCustomer(clientDtoFeign.getNombre());
+                        return c;
+                    }).map(c -> cuentaMapper.cuentaTocuentaDto(c));
+            return lscuenta;
         } catch (FeignException feignException) {
             log.error("ERROR FeignException: {}", feignException.getMessage());
             throw new AccountException(feignException.getMessage());
@@ -105,6 +115,18 @@ public class CuentaServiceImp implements CuentaService {
             if (Objects.nonNull(clientDtoFeign)) {
                 clientResultd.setNameCustomer(clientDtoFeign.getNombre());
             }
+            /*
+            Producer producer = new Producer();
+            CompletableFuture<SendResult<String, AuditoriaDto>> future = producer.send(kafkaTemplate, topico, producer.setAuditoria("creaciòn de cuenta bancaria", clientResultd.getNameCustomer(),
+                    clientResultd.getInitialBalance(), clientResultd.getId()));
+            future.whenCompleteAsync((r, t) -> {
+                if(t!=null) {
+                    throw new RuntimeException();
+                }
+                log.info("Se ha enviado el mensaje al topico: {}", topico);
+            });
+
+             */
             return cuentaMapper.cuentaTocuentaDto(clientResultd);
         }  catch (FeignException feignException) {
             log.error("ERROR FeignException: {}", feignException.getMessage());
